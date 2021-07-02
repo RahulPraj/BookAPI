@@ -115,7 +115,7 @@
 //update/add books to publications                            (DONE)
 
 //DELETE
-//delete  the publication
+//delete  the publication                                     (DONE)
 //delete the book from publication                            (DONE)
 
 

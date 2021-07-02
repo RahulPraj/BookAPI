@@ -21,7 +21,7 @@ Methods-> GET
  */
  booky.get("/",(req,res) =>{
     /*to first requirement to get all the books*/
-    return res.json({books:database.books});
+    return res.json({book:database.books});
 
 });
  /*
@@ -375,6 +375,32 @@ booky.delete("/book/delete/:isbn",(req,res )=>{
 //after we have pdatedBookDatabase in const
 database.book= updatedBookDatabase; //it will not work so we have to change in database const to let variable
 return res.json({books:database.book});
+});
+/*
+Route           /author/delete
+Description      delete author
+Access          Public
+Parameter       id
+Methods         delete
+ */
+booky.delete("/author/delete/:authorId", (req, res) =>{
+    const updatedAuthorDatabase = database.authors.filter((author)=>
+    author.id!==parseInt(req.params.authorId));
+    database.authors = updatedAuthorDatabase;
+    return res.json({author:database.authors});
+});
+/*
+Route           /publication/delete
+Description      delete publication
+Access          Public
+Parameter       id
+Methods         delete
+ */
+booky.delete("/publication/delete/:pubId", (req, res) =>{
+    const updatedPublicationDatabase = database.publications.filter((publication)=>
+    publication.id!==parseInt(req.params.pubId));
+    database.publications = updatedPublicationDatabase;
+    return res.json({publication:database.publications});
 });
 /*
 Route          /book/delete/author
