@@ -1,5 +1,8 @@
+require("dotenv").config();
+//Frame work
 const { json } = require("express");
 const express = require("express");
+const mongoose = require("mongoose");
 
 
    //import database
@@ -9,7 +12,16 @@ const express = require("express");
  const booky = express();
 //configuration
 booky.use(express.json());
- 
+
+//Establish database connection
+mongoose.connect(process.env.MONGO_URL,
+ {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+}
+).then(() => console.log("connection established!!")); 
  // describe our API.
 
  /*
