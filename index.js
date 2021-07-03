@@ -8,6 +8,11 @@ const mongoose = require("mongoose");
    //import database
    const database =require("./database");
 
+   //commit models
+   const BookModel= require("./database/book");
+   const AuthorModel= require("./database/author");
+   const PublicationModel= require("./database/publication");
+
    // initization
  const booky = express();
 //configuration
