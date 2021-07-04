@@ -38,10 +38,10 @@
 //BOOKS
 //GET
 /*we need an API (GLOBAL QUESTION)*/
-// to get all books                                          (DONE)
-// to get specific books                                     (DONE)
-// to get list of books based on category                    (DONE)
-// we need API to get list of books based on languages       (DONE)
+// to get all books                                          (DONE) ✌
+// to get specific books                                     (DONE) ✌
+// to get list of books based on category                    (DONE) ✌
+// we need API to get list of books based on languages       (DONE) ✌
 
 /*----------------------------------------------------------------------*/
 
@@ -49,7 +49,7 @@
 
 /*purpose of post is sending a data */
 
-//Add new book (wrtitng new API to add new book)             (DONE)
+//Add new book (wrtitng new API to add new book)             (DONE) ✌
 
 
 
@@ -80,15 +80,15 @@
 //AUTHORS
 //GET
 /*we need an API (GLOBAL QUESTION)*/
-// to get all authors                                         (DONE)
-//to get specific authors                                     (DONE)
-// to get list of authors based on books                      (DONE)
+// to get all authors                                         (DONE) ✌
+//to get specific authors                                     (DONE) ✌
+// to get list of authors based on books                      (DONE) ✌
 
 
 /*----------------------------------------------------------------------- */
 
 //POST
-//Add new author                                              (DONE)
+//Add new author                                              (DONE) ✌
 
 /*---------------------------------------------------------------------- */
 
@@ -102,9 +102,9 @@
 //PUBLICATIONS
 //GET
 /*we need an API (GLOBAL QUESTION)*/
-//to get all publication                                      (DONE)
-// to get specific publication                                (DONE)
-// to get list of publication based on book                   (DONE)
+//to get all publication                                      (DONE) ✌ 
+// to get specific publication                                (DONE) ✌
+// to get list of publication based on book                   (DONE) ✌
 
 /*------------------------------------------------------------------- */
 //POST

@@ -36,9 +36,10 @@ Access -> Public
 Parameter->None
 Methods-> GET
  */
- booky.get("/",(req,res) =>{
+ booky.get("/",async(req,res) =>{
+     const getAllBooks = await BookModel.find();
     /*to first requirement to get all the books*/
-    return res.json({book:database.books});
+    return res.json(getAllBooks);
 
 });
  /*
@@ -49,22 +50,19 @@ Parameter       ISBN
 Methods         GET
  */
     //to get specific books
-     booky.get("/is/:isbn",(req,res) =>{
-         //process data
-         const getSpecificBook = database.books.filter((book ) => book.ISBN ===req.params.isbn ); 
-         /*getspecificbook go to dartabase and check ,it will finds the books array and filter everything
-          and we pass a fun called book .this book is nothing it is an each and every object in the books array 
-          , inside books there have isbn , and if the parameter is equal then it stored in getSpecificBook*/
-          
+     booky.get("/is/:isbn",async(req,res) =>{
+         //we are using monogoDB METHOD 
+         const getSpecificBooks = await BookModel.findOne({ISBN:req.params.isbn}); // inside bracket we provide obejct having our ISBN and pass the params isbn.
+         //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
           //how to check that getSpecificBook have data or not- i.e array length
 
-          if(getSpecificBook.length===0){
+          if(!getSpecificBooks){
               return res.json({error:`No book found for the ISBN of ${req.params.isbn}`}); 
               /*$ isused to excess a js express inside templete literal(``)*/ 
           }
 
           // if we have data
-          return res.json({book:getSpecificBook});
+          return res.json({book:getSpecificBooks});
      });
 
  /*
@@ -75,22 +73,16 @@ Parameter       category
 Methods         GET
  */
   
-booky.get("/c/:category",(req,res) =>{
-    const getSpecificBook = database.books.filter((book) =>  
-     book.category.includes(req.params.category) 
-/* icludes is an another array method as we know category is a array
-having samw string in it. so we includs these array , so whatever we data give to include method
-it will take and compare each and every value inside this category  and if the match is found it will
- return true or it will return false*/
-    );
-    if(getSpecificBook.length===0){
+booky.get("/c/:category", async(req,res) =>{
+    const getSpecificBooks = await BookModel.findOne({category: req.params.category,}); 
+    if(!getSpecificBooks){
         return res.json({error:`No book found for the category of ${req.params.category}`,
         }); 
         /*$ isused to excess a js express inside templete literal(``)*/ 
     }
 
     // if we have data
-    return res.json({book:getSpecificBook});
+    return res.json({book: getSpecificBooks});
 
 
 });
@@ -101,16 +93,15 @@ Access          Public
 Parameter       category
 Methods         GET
  */
-booky.get("/l/:language", (req,res) =>{
-    const getSpecificBook = database.books.filter((book) =>
-    book.language=== req.params.language);
-    if(getSpecificBook.length===0){
+booky.get("/l/:language",async (req,res) =>{
+    const getSpecificBooks = await BookModel.findOne({language: req.params.language});
+    if(!getSpecificBooks){
         return res.json({error:`No book found for the language of ${req.params.language}`}); 
         /*$ isused to excess a js express inside templete literal(``)*/ 
     }
 
     // if we have data
-    return res.json({book:getSpecificBook});
+    return res.json({books:getSpecificBooks});
 });
  /*
 Route            author
@@ -119,8 +110,9 @@ Access          Public
 Parameter       author
 Methods         GET
  */
-booky.get("/author",(req,res) =>{
-    return res.json({authors:database.author});
+booky.get("/author",async(req,res) =>{
+    const getAllAuthors = await AuthorModel. find();
+    return res.json({authors:getAllAuthors});
 });
  /*
 Route            /author/id
@@ -130,13 +122,13 @@ Parameter       ISBN
 Methods         GET
  */
 
-booky.get("/author/:id", (req,res) => {
+booky.get("/author/:id",async (req,res) => {
     
-    const getSpecificAuthor = database.authors.filter((author) => author.id===parseInt(req.params.id));
-    if(getSpecificAuthor.length===0){
+    const getSpecificAuthors = await AuthorModel.findOne({id: req.params.id});
+    if(!getSpecificAuthors){
         return res.json({error:`No  specific author  is found ${req.params.id}`});
     }
-    return res.json({authors:getSpecificAuthor});
+    return res.json({authors:getSpecificAuthors});
     
 });
  /*
@@ -146,22 +138,17 @@ Access          Public
 Parameter       ISBN
 Methods         GET
  */
-booky.get("/author/book/:isbn",(req,res) =>{
-    const getSpecificAuthor = database.authors.filter((author) =>  
-     author.books.includes(req.params.isbn) 
-/* icludes is an another array method as we know category is a array
-having samw string in it. so we includs these array , so whatever we data give to include method
-it will take and compare each and every value inside this category  and if the match is found it will
- return true or it will return false*/
-    );
-    if(getSpecificAuthor.length===0){
+booky.get("/author/book/:isbn",async(req,res) =>{
+    const getSpecificAuthors = await AuthorModel.findOne({ISBN:parseInt(req.params.isbn)}); 
+
+    if(!getSpecificAuthors){
         return res.json({error:`No Author found for the book of ${req.params.isbn}`,
         }); 
         /*$ isused to excess a js express inside templete literal(``)*/ 
     }
 
     // if we have data
-    return res.json({authors:getSpecificAuthor});
+    return res.json({authors:getSpecificAuthors});
 
 
 });
@@ -172,8 +159,9 @@ Access          Public
 Parameter       NUNE
 Methods         GET
  */
-booky.get("/publication",(req,res) =>{
-    return res.json({publications:database.publication});
+booky.get("/publication",async(req,res) =>{
+    const getSpecificPublications = await PublicationModel.find();
+    return res.json({publications:getSpecificPublications});
 });
 /*
 Route            /Publication
@@ -182,13 +170,13 @@ Access          Public
 Parameter       id
 Methods         GET
  */
-booky.get("/publication/:id", (req,res) => {
+booky.get("/publication/:id", async(req,res) => {
     
-    const getSpecificPublication = database.publications.filter((publication) => publication.id===parseInt(req.params.id));
-    if(getSpecificPublication.length===0){
+    const getSpecificPublications = await PublicationModel.findOne({id: req.params.id});
+    if(!getSpecificPublications){
         return res.json({error:`No  specific publication  is found ${req.params.id}`});
     }
-    return res.json({publications:getSpecificPublication});
+    return res.json({publications:getSpecificPublications});
     
 });
 /*
@@ -198,22 +186,16 @@ Access          Public
 Parameter       isbn
 Methods         GET
  */
-booky.get("/publication/book/:isbn",(req,res) =>{
-    const getSpecificPublication = database.publications.filter((publication) =>  
-     publication.books.includes(req.params.isbn) 
-/* icludes is an another array method as we know category is a array
-having samw string in it. so we includs these array , so whatever we data give to include method
-it will take and compare each and every value inside this category  and if the match is found it will
- return true or it will return false*/
-    );
-    if(getSpecificPublication.length===0){
+booky.get("/publication/book/:isbn",async(req,res) =>{
+    const getSpecificPublications = await PublicationModel.findOne({ISBN: req.params.isbn});
+    if(!getSpecificPublications){
         return res.json({error:`No publication found for the book of ${req.params.isbn}`
         }); 
         /*$ isused to excess a js express inside templete literal(``)*/ 
     }
 
     // if we have data
-    return res.json({publications:getSpecificPublication});
+    return res.json({publications:getSpecificPublications});
 
 
 });
@@ -226,16 +208,11 @@ Access          Public
 Parameter       NONE
 Methods         POST
  */
-booky.post("/book/add",(req,res) => {
-    console.log(req.body);
-   /*HERE WE USE SOMETHING CALL req.body  TO ADD PARAMTER FOR NEW BOOKS */
-
-   const {newBook} = req.body;  
-   /*here as we have body (newBook) name and const name(newBook) both are same to solve this thing we use destructure {newBook} array */
- 
-    // how to add  a data ta an array-> push
-    database.books.push(newBook);
-    return res.json({books: database.books});      
+booky.post("/book/add", async(req, res) => {
+    
+    const {newBook} = req.body;
+    BookModel.create(newBook);
+    return res.json({message:" Book is added"}); 
 });
 /*
 Route            /author/add
@@ -244,13 +221,12 @@ Access          Public
 Parameter       NONE
 Methods         POST
  */
-booky.post("/author/add",(req, res) => {
+booky.post("/author/add",async(req, res) => {
 
     const {newAuthor} = req.body;  
     
-     // how to add  a data ta an array-> push
-     database.authors.push(newAuthor);
-     return res.json({authors: database.author}); 
+    AuthorModel.create(newAuthor);
+     return res.json({message:" author is added"}); 
 });
 /*
 Route            /publication/add
@@ -262,9 +238,8 @@ Methods         POST
 booky.post("/publication/add", (req, res) =>{
     const {newPublication} = req.body;  
     
-     // how to add  a data ta an array-> push
-     database.publications.push(newPublication);
-     return res.json({publications: database.publication}); 
+    PublicationModel.create(newPublication) 
+     return res.json({message:"publication is added"}); 
 });
 /*
 Route           /book/update/tittle
