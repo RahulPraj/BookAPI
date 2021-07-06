@@ -36,11 +36,9 @@ Access -> Public
 Parameter->None
 Methods-> GET
  */
- booky.get("/",async(req,res) =>{
-     const getAllBooks = await BookModel.find();
-    /*to first requirement to get all the books*/
+booky.get("/", async (req, res) =>{
+    const getAllBooks = await BookModel.find();
     return res.json(getAllBooks);
-
 });
  /*
 Route            /is
@@ -50,41 +48,37 @@ Parameter       ISBN
 Methods         GET
  */
     //to get specific books
-     booky.get("/is/:isbn",async(req,res) =>{
-         //we are using monogoDB METHOD 
-         const getSpecificBooks = await BookModel.findOne({ISBN:req.params.isbn}); // inside bracket we provide obejct having our ISBN and pass the params isbn.
-         //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
-          //how to check that getSpecificBook have data or not- i.e array length
+booky.get("/is/:isbn", async (req, res) =>{
 
-          if(!getSpecificBooks){
-              return res.json({error:`No book found for the ISBN of ${req.params.isbn}`}); 
-              /*$ isused to excess a js express inside templete literal(``)*/ 
-          }
+    const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
+    // inside bracket we provide obejct having our ISBN and pass the params isbn.
+    //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
+    //how to check that getSpecificBook have data or not- i.e array length
 
-          // if we have data
-          return res.json({book:getSpecificBooks});
-     });
+    if(!getSpecificBook){
+        return res.json({error:`No book found for the ISBN of ${req.params.isbn}`,});
+    }
+    return res.json({book:getSpecificBook});
+});
 
  /*
-Route            /
+Route            /c
 Description     to get list of books based on category
 Access          Public
 Parameter       category
 Methods         GET
  */
   
-booky.get("/c/:category", async(req,res) =>{
-    const getSpecificBooks = await BookModel.findOne({category: req.params.category,}); 
-    if(!getSpecificBooks){
-        return res.json({error:`No book found for the category of ${req.params.category}`,
-        }); 
-        /*$ isused to excess a js express inside templete literal(``)*/ 
+booky.get("/c/:category", async (req, res) =>{
+    const getSpecificBooks = await BookModel.findOne({
+        category: req.params.category,
+    });
+
+    if(!getSpecificBooks) {
+        return res.json({error: `No book found for the category of ${req.params.category}`,});
     }
 
-    // if we have data
-    return res.json({book: getSpecificBooks});
-
-
+    return res .json({books: getSpecificBooks});
 });
  /*
 Route            /
@@ -202,17 +196,17 @@ booky.get("/publication/book/:isbn",async(req,res) =>{
 
 //comment
 /*
-Route            /book/add
+Route            /book/new
 Description      Add new book
 Access          Public
 Parameter       NONE
 Methods         POST
  */
-booky.post("/book/add", async(req, res) => {
-    
-    const {newBook} = req.body;
-    BookModel.create(newBook);
-    return res.json({message:" Book is added"}); 
+booky.post("/book/new", async (req, res) =>{
+    console.log(req.body);
+    const { newBook } = req.body;
+    const  addNewBook = await BookModel.create(newBook);
+    return res.json({message:"book was added"});
 });
 /*
 Route            /author/add
@@ -248,17 +242,21 @@ Access          Public
 Parameter       isbn
 Methods         PUT
  */
-booky.put("/book/update/tittle/:isbn",(req, res) =>{ //here we used paramter in body
-//Foreach -> only update the required data i.e title
-//map -> it creating a whole new array 
- /*so we will use forEach */
- database.books.forEach((book) => {
-     if(book.ISBN=== req.params.isbn){
-         book.title= req.body.newBookTitle;
-         return;
-     }
- });
- return res.json({books:database.book});
+booky.put("/book/update/:isbn", async(req, res) =>{
+    const updatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn, //passing isbn so tha the update done in books database.
+        },
+        {
+            title: req.body.bookTitle, //specify what we have to update
+        
+        },
+        {
+            new: true,
+        }
+    );
+
+ return res.json({books:updatedBook});
 });
 /*
 Route           /book/update/author
