@@ -61,8 +61,8 @@
 /*purpose of put is to update data */
 
 //PUT
-//to update book title                                        (DONE)
-//update/add new author                                       (DONE)
+//to update book title                                        (DONE) ✌
+//update/add new author                                       (DONE) ✌
 
 
 /*-----------------------------------------------------------------------------*/
@@ -72,8 +72,8 @@
 /*purpose of DELETE is to delete existing data */
 
 //DELETE
-//delete a book                                               (DONE)
-//delete an author from a book                                (DONE)
+//delete a book                                               (DONE) ✌
+//delete an author from a book                                (DONE) ✌
 
 /*--------------------------------------------------------------------------------*/
 
@@ -93,11 +93,11 @@
 /*---------------------------------------------------------------------- */
 
 //PUT
-//update author name                                          (DONE)
+//update author name                                          (DONE) ✌
 
 /*------------------------------------------------------------------- */
 //DELETE
-//delete an author                                            (DONE)
+//delete an author                                            (DONE) ✌
 
 //PUBLICATIONS
 //GET
@@ -108,15 +108,15 @@
 
 /*------------------------------------------------------------------- */
 //POST
-//ADD new publictions                                         (DONE)
+//ADD new publictions                                         (DONE) ✌
 
 //PUT
-//update the publication name                                 (DONE)
+//update the publication name                                 (DONE) ✌
 //update/add books to publications                            (DONE)
 
 //DELETE
-//delete  the publication                                     (DONE)
-//delete the book from publication                            (DONE)
+//delete  the publication                                     (DONE) ✌
+//delete the book from publication                            (DONE) ✌
 
 
 //how server serve the request

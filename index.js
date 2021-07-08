@@ -13,6 +13,9 @@ const mongoose = require("mongoose");
    const AuthorModel= require("./database/author");
    const PublicationModel= require("./database/publication");
 
+   ///micro-services Routes
+   const Books  = require("./API/Book");
+
    // initization
  const booky = express();
 //configuration
@@ -29,74 +32,12 @@ mongoose.connect(process.env.MONGO_URL,
 ).then(() => console.log("connection established!!")); 
  // describe our API.
 
- /*
-Route -> /
-Description -> get all books
-Access -> Public
-Parameter->None
-Methods-> GET
- */
-booky.get("/", async (req, res) =>{
-    const getAllBooks = await BookModel.find();
-    return res.json(getAllBooks);
-});
- /*
-Route            /is
-Description     get specific books based on ISBN
-Access          Public
-Parameter       ISBN
-Methods         GET
- */
-    //to get specific books
-booky.get("/is/:isbn", async (req, res) =>{
+ //initializing microservices(preffix)
+ booky.use("/book",Books);
 
-    const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
-    // inside bracket we provide obejct having our ISBN and pass the params isbn.
-    //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
-    //how to check that getSpecificBook have data or not- i.e array length
 
-    if(!getSpecificBook){
-        return res.json({error:`No book found for the ISBN of ${req.params.isbn}`,});
-    }
-    return res.json({book:getSpecificBook});
-});
 
- /*
-Route            /c
-Description     to get list of books based on category
-Access          Public
-Parameter       category
-Methods         GET
- */
-  
-booky.get("/c/:category", async (req, res) =>{
-    const getSpecificBooks = await BookModel.findOne({
-        category: req.params.category,
-    });
-
-    if(!getSpecificBooks) {
-        return res.json({error: `No book found for the category of ${req.params.category}`,});
-    }
-
-    return res .json({books: getSpecificBooks});
-});
- /*
-Route            /
-Description     to get list of books based on language
-Access          Public
-Parameter       category
-Methods         GET
- */
-booky.get("/l/:language",async (req,res) =>{
-    const getSpecificBooks = await BookModel.findOne({language: req.params.language});
-    if(!getSpecificBooks){
-        return res.json({error:`No book found for the language of ${req.params.language}`}); 
-        /*$ isused to excess a js express inside templete literal(``)*/ 
-    }
-
-    // if we have data
-    return res.json({books:getSpecificBooks});
-});
+ 
  /*
 Route            author
 Description     get all authors
@@ -194,20 +135,7 @@ booky.get("/publication/book/:isbn",async(req,res) =>{
 
 });
 
-//comment
-/*
-Route            /book/new
-Description      Add new book
-Access          Public
-Parameter       NONE
-Methods         POST
- */
-booky.post("/book/new", async (req, res) =>{
-    console.log(req.body);
-    const { newBook } = req.body;
-    const  addNewBook = await BookModel.create(newBook);
-    return res.json({message:"book was added"});
-});
+
 /*
 Route            /author/add
 Description      Add new author
@@ -235,56 +163,9 @@ booky.post("/publication/add", (req, res) =>{
     PublicationModel.create(newPublication) 
      return res.json({message:"publication is added"}); 
 });
-/*
-Route           /book/update/tittle
-Description      update book title
-Access          Public
-Parameter       isbn
-Methods         PUT
- */
-booky.put("/book/update/:isbn", async(req, res) =>{
-    const updatedBook = await BookModel.findOneAndUpdate(
-        {
-            ISBN: req.params.isbn, //passing isbn so tha the update done in books database.
-        },
-        {
-            title: req.body.bookTitle, //specify what we have to update
-        
-        },
-        {
-            new: true,
-        }
-    );
 
- return res.json({books:updatedBook});
-});
-/*
-Route           /book/update/author
-Description      update/add new author FOR A BOOK
-Access          Public
-Parameter       isbn
-Methods         PUT
- */
 
-//here we are useing paramter in parameter->/:isbn/:authorId as we need both isbnbook and author id.
-booky.put("/book/update/author/:isbn/:authorId",(req,res)=> {  
- //update book database-> we have to add the author for the book database
- database.books.forEach((book) =>{
-    if(book.ISBN=== req.params.isbn){
-//to add something to an array we use push , as we know our author data is an array to add soemthing to an array we use push.
-    return book.author.push(parseInt(req.params.authorId)); /*if the ISBN of book matchs the paramter of isbn we are pushing the author array to paramter of authorId */        
-    };
-});
 
-//then update author database for same book 
-database.authors.forEach((author) => {
-    if(author.id=== parseInt(req.params.authorId)){
-        return author .books.push(req.params.isbn);/*here we are checking the author.id with params authorID AND pushing the isbn */
-    }
-    
-});
-return res.json({books:database.books,authors:database.author});
-});
 /*
 Route           /book/update/author/name
 Description      update author name 
@@ -292,14 +173,25 @@ Access          Public
 Parameter       id
 Methods         PUT
  */
-booky.put("/book/author/update/name/:id",(req,res) =>{
-    database.authors.forEach((author) => {
-        if(author.id=== parseInt(req.params.id)){
-            author.name= req.body.newAuthorName;
-            return;
+booky.put("/book/author/update/name/:authorId",async(req,res) =>{
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id: parseInt(req.params.authorId)
+        },
+        {
+            name: req.body.newAuthorName
+        },
+        {
+            new: true
         }
-    });
-    return res.json({authors:database.author});
+    );
+    // database.authors.forEach((author) => {
+    //     if(author.id=== parseInt(req.params.id)){
+    //         author.name= req.body.newAuthorName;
+    //         return;
+    //     }
+    // });
+    return res.json({authors:updatedAuthor});
    
 });
 /*
@@ -310,14 +202,25 @@ Parameter       id
 Methods         PUT
  */
 
-booky.put("/book/publication/update/name/:id",(req,res) =>{
-    database.publications.forEach((publication) => {
-        if(publication.id=== parseInt(req.params.id)){
-            publication.name= req.body.newPublicationName;
-            return;
+booky.put("/book/publication/update/name/:pubId",async(req,res) =>{
+    const updatedPublication = await PublicationModel.findOneAndUpdate(
+        {
+            id: parseInt(req.params.pubId)
+        },
+        {
+            name: req.body.newPublicationName
+        },
+        {
+            new: true
         }
-    });
-    return res.json({publications:database.publication});
+    );
+    // database.publications.forEach((publication) => {
+    //     if(publication.id=== parseInt(req.params.id)){
+    //         publication.name= req.body.newPublicationName;
+    //         return;
+    //     }
+    // });
+    return res.json({publications:updatedPublication});
    
 });
 
@@ -347,25 +250,7 @@ return res.json({books: database.books,
     publications:database.pub,
     message:"successfully updated publication"});
 });
-/*
-Route           /book/delet
-Description      delete book
-Access          Public
-Parameter       isbn
-Methods         delete
- */
-booky.delete("/book/delete/:isbn",(req,res )=>{
-    //how we can delete a book->using array filter -> is just cleaning the data
 
-    // we will use map here we can make a copy of th array
-
-/*which evrer the book object or data is not match with the book isbn send to  pdatedBookDatabase or if any book data match to isbn will thown out(delete)*/    
-    const updatedBookDatabase = database.books.filter((book)=> 
-    book.ISBN!== req.params.isbn);    //filter  and stored in updatedBookDatabase //we have to that filter so that it stored new array in const
-//after we have pdatedBookDatabase in const
-database.book= updatedBookDatabase; //it will not work so we have to change in database const to let variable
-return res.json({books:database.book});
-});
 /*
 Route           /author/delete
 Description      delete author
@@ -373,11 +258,12 @@ Access          Public
 Parameter       id
 Methods         delete
  */
-booky.delete("/author/delete/:authorId", (req, res) =>{
-    const updatedAuthorDatabase = database.authors.filter((author)=>
-    author.id!==parseInt(req.params.authorId));
-    database.authors = updatedAuthorDatabase;
-    return res.json({author:database.authors});
+booky.delete("/author/delete/:authorId", async(req, res) =>{
+const updatedAuthor = await AuthorModel.findOneAndDelete({id: req.body.authorId});    
+    //const updatedAuthorDatabase = database.authors.filter((author)=>
+    //author.id!==parseInt(req.params.authorId));
+    //database.authors = updatedAuthorDatabase;
+     return res.json({author:updatedAuthor});
 });
 /*
 Route           /publication/delete
@@ -386,48 +272,41 @@ Access          Public
 Parameter       id
 Methods         delete
  */
-booky.delete("/publication/delete/:pubId", (req, res) =>{
-    const updatedPublicationDatabase = database.publications.filter((publication)=>
-    publication.id!==parseInt(req.params.pubId));
-    database.publications = updatedPublicationDatabase;
-    return res.json({publication:database.publications});
+booky.delete("/publication/delete/:pubId", async(req, res) =>{
+const updatedPublication = await PublicationModel.findOneAndDelete({id: req.body.pubId});   
+    //const updatedPublicationDatabase = database.publications.filter((publication)=>
+    //publication.id!==parseInt(req.params.pubId));
+    //database.publications = updatedPublicationDatabase;
+    return res.json({publication:updatedPublication});
 });
-/*
-Route          /book/delete/author
-Description      delete author from a book
-Access          Public
-Parameter       isbn, author id
-Methods         delete
- */
 
-/*if we delete the author from a book we  also have to update the author database as well ,like if we delete 1 from authore the the book should be deleted*/
-booky.delete("/book/delete/author/:isbn/:authorId", (req, res) =>{
 
-    // update the book database
+ 
+
 /*here we are using forEach and filter , so we are usign forEach because we are not replacing the whole database we just editing one property */
-database.books.forEach((book)=>{
+//database.books.forEach((book)=>{
 
 /*we check the book form the book paramter if that matches we go inside that,  */    
-    if(book.ISBN=== req.params.isbn){
+   // if(book.ISBN=== req.params.isbn){
 
 /*as we have author as a array having mutliple data so to delete that we use filter , we will check weather the auth id inisde the database is equal to the other id that we receving 
 so whater the auth id is not equal to thw id that we receving is stored in newAuthorList anf the we replacing the whole array and the we returning  */        
         //delete the authore using filter
-     const newAuthorList= book.authors.filter((author) => author!== parseInt(req.params.authorId)) ;
-     book.authors = newAuthorList;
-     return;
-    }
-});
+     //const newAuthorList= book.authors.filter((author) => author!== parseInt(req.params.authorId)) ;
+    // book.authors = newAuthorList;
+     //return;
+    //}
+//});
 // update the author databse
-database.authors.forEach((author)=>{
-    if(author.id=== parseInt(req.params.authorId)){
-        const newBooksList= author.books.filter((book) =>book!== req.params.isbn);
-        author.books = newBooksList;
-        return;
-    }
-});
-return res.json({book:database.books,author:database.authors,message:"author was deleted!!"});
-});
+
+// database.authors.forEach((author)=>{
+//     if(author.id=== parseInt(req.params.authorId)){
+//         const newBooksList= author.books.filter((book) =>book!== req.params.isbn);
+//         author.books = newBooksList;
+//         return;
+//     }
+// });
+
 /*
 Route            /publication/delete/book
 Description      delete the book from publication
@@ -435,23 +314,51 @@ Access           Public
 Parameter        isbn, publication id
 Methods          delete
  */
-booky.delete("/publication/delete/book/:isbn/:pubId",(req, res)=>{
+booky.delete("/publication/delete/book/:isbn/:pubId",async(req, res)=>{
     //update publication database
+const updatedPublication = await PublicationModel.findOneAndUpdate(
+    {
+        id: parseInt(req.params.pubId)
+    },
+    {
+        $pull:{
+            books: req.params.isbn
+        },
+    },
+    {
+        new:true
+    }
+);
 /*here we are just replacing the publication 1 by 0 because we have one publication */
-database.publications.forEach((publication)=>{
-    if(publication.id=== parseInt(req.params.pubId)){
-      const newBooksList = publication.books.filter((book)=>  book !== req.params.isbn);
-      publication.books = newBooksList;
-      return;
-    }
-});    
+// database.publications.forEach((publication)=>{
+//     if(publication.id=== parseInt(req.params.pubId)){
+//       const newBooksList = publication.books.filter((book)=>  book !== req.params.isbn);
+//       publication.books = newBooksList;
+//       return;
+//     }
+// });
+
 //update book database
-database.books.forEach((book)=>{
-    if(book.ISBN=== req.params.isbn){
-        book.publication= 0; //we assuming that no publication is availabe
-        return;
+const updatedBook = await BookModel.findOneAndUpdate(
+    {
+        ISBN: req.params.isbn
+    },
+    {
+        $pull:{
+            id: req.body.pubId
+        },
+    },
+    {
+        new: true
     }
-});
-return res.json({books:database.books, publications: database.publications});
+);
+
+// database.books.forEach((book)=>{
+//     if(book.ISBN=== req.params.isbn){
+//         book.publication= 0; //we assuming that no publication is availabe
+//         return;
+//     }
+// });
+return res.json({books:updatedBook, publications: updatedPublication, message:"book is deleted from publication"});
 });
 booky.listen(3000, () => console.log("Hey server is running!!") );
