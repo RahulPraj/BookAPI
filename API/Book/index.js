@@ -4,6 +4,7 @@
 //Initializing Express Router
 const Router = require("express").Router();
 
+
 //databse models
 const BookModel = require("../../database/book");
 
@@ -16,9 +17,15 @@ Access -> Public
 Parameter->None
 Methods-> GET
  */
-Router.get("/", async (req, res) =>{
-    const getAllBooks = await BookModel.find();
+Router.get("/",async (req, res) =>{
+    try{
+        
+        const getAllBooks = await BookModel.find();
     return res.json(getAllBooks);
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 /*
@@ -31,15 +38,21 @@ Methods         GET
     //to get specific books
     Router.get("/is/:isbn", async (req, res) =>{
 
-        const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
-        // inside bracket we provide obejct having our ISBN and pass the params isbn.
-        //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
-        //how to check that getSpecificBook have data or not- i.e array length
-    
-        if(!getSpecificBook){
-            return res.json({error:`No book found for the ISBN of ${req.params.isbn}`,});
+        try{
+            const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
+            // inside bracket we provide obejct having our ISBN and pass the params isbn.
+            //findOne -> we need to find one book having one ISBN because book  can have only one isbn. 
+            //how to check that getSpecificBook have data or not- i.e array length
+        
+            if(!getSpecificBook){
+                return res.json({error:`No book found for the ISBN of ${req.params.isbn}`,});
+            }
+            return res.json({book:getSpecificBook});
+        }catch(error){
+            return res.json ({error: error.message});
         }
-        return res.json({book:getSpecificBook});
+
+       
     });
 
      /*
@@ -51,15 +64,20 @@ Methods         GET
  */
   
 Router.get("/c/:category", async (req, res) =>{
-    const getSpecificBooks = await BookModel.findOne({
-        category: req.params.category,
-    });
-
-    if(!getSpecificBooks) {
-        return res.json({error: `No book found for the category of ${req.params.category}`,});
+    try{
+        const getSpecificBooks = await BookModel.findOne({
+            category: req.params.category,
+        });
+    
+        if(!getSpecificBooks) {
+            return res.json({error: `No book found for the category of ${req.params.category}`,});
+        }
+    
+        return res .json({books: getSpecificBooks});
+    }catch(error){
+        return res.json ({error: error.message});
     }
-
-    return res .json({books: getSpecificBooks});
+    
 });
 
 /*
@@ -70,14 +88,20 @@ Parameter       category
 Methods         GET
  */
 Router.get("/l/:language",async (req,res) =>{
-    const getSpecificBooks = await BookModel.findOne({language: req.params.language});
+
+    try{
+        const getSpecificBooks = await BookModel.findOne({language: req.params.language});
     if(!getSpecificBooks){
         return res.json({error:`No book found for the language of ${req.params.language}`}); 
         /*$ isused to excess a js express inside templete literal(``)*/ 
     }
 
     // if we have data
-    return res.json({books:getSpecificBooks});
+    return res.json({books:getSpecificBooks});  
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 //comment
@@ -89,10 +113,15 @@ Parameter       NONE
 Methods         POST
  */
 Router.post("/new", async (req, res) =>{
-    console.log(req.body);
+    try{
+        console.log(req.body);
     const { newBook } = req.body;
     const  addNewBook = await BookModel.create(newBook);
     return res.json({message:"book was added"});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 /*
@@ -103,20 +132,25 @@ Parameter       isbn
 Methods         PUT
  */
 Router.put("/update/:isbn", async(req, res) =>{
-    const updatedBook = await BookModel.findOneAndUpdate(
-        {
-            ISBN: req.params.isbn, //passing isbn so tha the update done in books database.
-        },
-        {
-            title: req.body.bookTitle, //specify what we have to update
-        
-        },
-        {
-            new: true,
-        }
-    );
-
- return res.json({books:updatedBook});
+    try{
+        const updatedBook = await BookModel.findOneAndUpdate(
+            {
+                ISBN: req.params.isbn, //passing isbn so tha the update done in books database.
+            },
+            {
+                title: req.body.bookTitle, //specify what we have to update
+            
+            },
+            {
+                new: true,
+            }
+        );
+    
+     return res.json({books:updatedBook});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 /*
@@ -129,7 +163,9 @@ Methods         PUT
 
 //here we are useing paramter in parameter->/:isbn/:authorId as we need both isbnbook and author id.
 Router.put("/update/author/:isbn", async(req,res)=> {  
-    //update book database-> we have to add the author for the book database
+
+    try{
+            //update book database-> we have to add the author for the book database
     //we using monogoDB
    
    const updatedBook =  await BookModel.findOneAndUpdate(
@@ -183,6 +219,10 @@ return res.json({
     authors: updatedAuthor,
     message:"new  author was added"
  });
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 /*
@@ -193,7 +233,9 @@ Parameter       isbn
 Methods         delete
  */
 Router.delete("/delete/:isbn",async(req,res )=>{
-    const   updatedBookDatabase = await BookModel.findOneAndDelete({ISBN:req.params.isbn});  
+
+    try{
+        const   updatedBookDatabase = await BookModel.findOneAndDelete({ISBN:req.params.isbn});  
         
         //how we can delete a book->using array filter -> is just cleaning the data
     
@@ -205,6 +247,10 @@ Router.delete("/delete/:isbn",async(req,res )=>{
     //after we have pdatedBookDatabase in const
     //database.book= updatedBookDatabase; //it will not work so we have to change in database const to let variable
     return res.json({books:updatedBookDatabase});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+   
     });
 
     /*
@@ -218,37 +264,43 @@ Methods         delete
 /*if we delete the author from a book we  also have to update the author database as well ,like if we delete 1 from authore the the book should be deleted*/
 Router.delete("/delete/author/:isbn/:authorId", async(req, res) =>{
 
-    // update the book database
-const updatedBook = await BookModel.findOneAndUpdate(
-//because we updateing the specfic array not deleting the whole part.
-    {
-        ISBN: req.params.isbn
-    },
-//now i am delete athour from that book
-    {
-        $pull:{
-            authors: parseInt(req.params.authorId),
-        },    },
+    try{
+          // update the book database
+         const updatedBook = await BookModel.findOneAndUpdate(
+    //because we updateing the specfic array not deleting the whole part.
         {
-            new:true
+            ISBN: req.params.isbn
+        },
+    //now i am delete athour from that book
+        {
+            $pull:{
+                authors: parseInt(req.params.authorId),
+            },    },
+            {
+                new:true
+            }
+        ); 
+        // update the author databse
+    const updatedAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id: parseInt(req.params.authorId) //we use parseInt here because we give id of author as url so to convert this in string we use this.
+        },
+        {
+           $pull:{
+             books: req.params.isbn 
+           }, 
+        },
+        {
+            new: true
         }
-    ); 
-    // update the author databse
-const updatedAuthor = await AuthorModel.findOneAndUpdate(
-    {
-        id: parseInt(req.params.authorId) //we use parseInt here because we give id of author as url so to convert this in string we use this.
-    },
-    {
-       $pull:{
-         books: req.params.isbn 
-       }, 
-    },
-    {
-        new: true
+    );
+    return res.json({book:updatedBook,author:updatedAuthor,message:"author was deleted!!"});
+    
+    }catch(error){
+        return res.json ({error: error.message});
     }
-);
-return res.json({book:updatedBook,author:updatedAuthor,message:"author was deleted!!"});
-});
+
+  });
 
 
 

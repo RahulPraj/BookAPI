@@ -3,9 +3,23 @@ const mongoose = require("mongoose");
 //author   schema
 
 const AuthorSchema = mongoose.Schema({
-    id: Number,
-    name: String,
-    books: [String],
+    id: {
+        type: Number,
+        required: true,
+       
+    },
+    name: {
+        type: String,
+        required: true,
+        minLength: 5,
+        maxLength: 15,
+    },
+    books: {
+        type: [String],
+        required: true,
+        minLength: 6,
+        maxLength: 15,
+    },
 });
 
 //ATHOUR MODEL

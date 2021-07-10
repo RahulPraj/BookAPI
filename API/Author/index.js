@@ -13,8 +13,13 @@ Parameter       author
 Methods         GET
  */
 Router.get("/",async(req,res) =>{
-    const getAllAuthors = await AuthorModel. find();
+    try{
+        const getAllAuthors = await AuthorModel. find();
     return res.json({authors:getAllAuthors});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
 });
 
 
@@ -27,12 +32,16 @@ Methods         GET
  */
 
 Router.get("/:id",async (req,res) => {
-    
-    const getSpecificAuthors = await AuthorModel.findOne({id: req.params.id});
+
+    try{
+        const getSpecificAuthors = await AuthorModel.findOne({id: req.params.id});
     if(!getSpecificAuthors){
         return res.json({error:`No  specific author  is found ${req.params.id}`});
     }
     return res.json({authors:getSpecificAuthors});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
     
 });
 
@@ -44,18 +53,24 @@ Parameter       ISBN
 Methods         GET
  */
 Router.get("/book/:isbn",async(req,res) =>{
-    const getSpecificAuthors = await AuthorModel.findOne({ISBN:parseInt(req.params.isbn)}); 
 
-    if(!getSpecificAuthors){
-        return res.json({error:`No Author found for the book of ${req.params.isbn}`,
-        }); 
-        /*$ isused to excess a js express inside templete literal(``)*/ 
+    try{
+        const getSpecificAuthors = await AuthorModel.findOne({ISBN:parseInt(req.params.isbn)}); 
+
+        if(!getSpecificAuthors){
+            return res.json({error:`No Author found for the book of ${req.params.isbn}`,
+            }); 
+            /*$ isused to excess a js express inside templete literal(``)*/ 
+        }
+    
+        // if we have data
+        return res.json({authors:getSpecificAuthors});
+    
+    
+    }catch(error){
+        return res.json ({error: error.message});
     }
-
-    // if we have data
-    return res.json({authors:getSpecificAuthors});
-
-
+    
 });
 
 /*
@@ -66,11 +81,16 @@ Parameter       NONE
 Methods         POST
  */
 Router.post("/add",async(req, res) => {
-
-    const {newAuthor} = req.body;  
+    try{
+        const {newAuthor} = req.body;  
     
-    AuthorModel.create(newAuthor);
-     return res.json({message:" author is added"}); 
+        AuthorModel.create(newAuthor);
+         return res.json({message:" author is added"});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+
+    
 });
 
 /*
@@ -81,24 +101,30 @@ Parameter       id
 Methods         PUT
  */
 Router.put("/update/name/:authorId",async(req,res) =>{
-    const updatedAuthor = await AuthorModel.findOneAndUpdate(
-        {
-            id: parseInt(req.params.authorId)
-        },
-        {
-            name: req.body.newAuthorName
-        },
-        {
-            new: true
-        }
-    );
-    // database.authors.forEach((author) => {
-    //     if(author.id=== parseInt(req.params.id)){
-    //         author.name= req.body.newAuthorName;
-    //         return;
-    //     }
-    // });
-    return res.json({authors:updatedAuthor});
+
+    try{
+        const updatedAuthor = await AuthorModel.findOneAndUpdate(
+            {
+                id: parseInt(req.params.authorId)
+            },
+            {
+                name: req.body.newAuthorName
+            },
+            {
+                new: true
+            }
+        );
+        // database.authors.forEach((author) => {
+        //     if(author.id=== parseInt(req.params.id)){
+        //         author.name= req.body.newAuthorName;
+        //         return;
+        //     }
+        // });
+        return res.json({authors:updatedAuthor});
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
    
 });
 
@@ -110,12 +136,17 @@ Parameter       id
 Methods         delete
  */
 Router.delete("/delete/:authorId", async(req, res) =>{
-    const updatedAuthor = await AuthorModel.findOneAndDelete({id: req.body.authorId});    
+    try{
+        const updatedAuthor = await AuthorModel.findOneAndDelete({id: req.body.authorId});    
         //const updatedAuthorDatabase = database.authors.filter((author)=>
         //author.id!==parseInt(req.params.authorId));
         //database.authors = updatedAuthorDatabase;
          return res.json({author:updatedAuthor});
-    });
+    }catch(error){
+        return res.json ({error: error.message});
+    }
+    
+ });
 
     
     
